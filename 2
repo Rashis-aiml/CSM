@@ -1,0 +1,30 @@
+import numpy as np
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error
+np.random.seed(42)
+X = np.random.rand(100, 5)  # 100 samples, 5 features
+y = 2 * X[:, 0] + 3 * X[:, 1] + 4 * X[:, 2] + np.random.randn(100)
+df = pd.DataFrame(X, columns=['Feature1', 'Feature2', 'Feature3', 'Feature4', 'Feature5'])
+df['Target'] = y
+X_train, X_test, y_train, y_test = train_test_split(df.drop('Target', axis=1), df['Target'], test_size=0.2, random_state=42)
+selected_features = []
+model = LinearRegression()
+while len(selected_features) < X_train.shape[1]:
+    best_feature = None
+    best_mse = float('inf')
+    for feature in X_train.columns:
+        if feature not in selected_features:
+            current_features = selected_features + [feature]
+            model.fit(X_train[current_features], y_train)
+            y_pred = model.predict(X_test[current_features])
+            mse = mean_squared_error(y_test, y_pred)
+            if mse < best_mse:
+                best_mse = mse
+                best_feature = feature
+    if best_feature is not None:
+        selected_features.append(best_feature)
+        print(f"Step {len(selected_features)}: Added {best_feature}, MSE = {best_mse:.4f}")
+print("\nSelected Features:", selected_features)
+
