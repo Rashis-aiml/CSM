@@ -1,0 +1,22 @@
+import sympy as sp
+import matplotlib.pyplot as plt
+import numpy as np
+x = sp.symbols('x')
+y = x**2  # Replace this with your desired function
+dy_dx = sp.diff(y, x)
+x_value = 2  # Replace this with the x-coordinate of the point
+slope_at_point = dy_dx.subs(x, x_value)
+tangent_line = slope_at_point * (x - x_value) + y.subs(x, x_value)
+func = sp.lambdify(x, y, 'numpy')
+tangent = sp.lambdify(x, tangent_line, 'numpy')
+x_vals = np.linspace(x_value - 2, x_value + 2, 400)
+plt.plot(x_vals, func(x_vals), label='Original Function')
+plt.plot(x_vals, tangent(x_vals), label='Tangent Line')
+plt.plot(x_vals, sp.lambdify(x, dy_dx, 'numpy')(x_vals), label='Derivative')
+plt.scatter(x_value, y.subs(x, x_value), color='red', label='Point on Curve')
+plt.legend()
+plt.title('Curve, Tangent, and Derivative')
+plt.xlabel('x')
+plt.ylabel('y')
+plt.grid(True)
+plt.show()
