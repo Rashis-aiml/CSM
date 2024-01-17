@@ -1,0 +1,22 @@
+import numpy as np
+import pandas as pd
+from sklearn.model_selection import RepeatedKFold, cross_val_score
+from sklearn.linear_model import Ridge
+from sklearn.metrics import mean_absolute_error
+np.random.seed(42)
+X = np.random.rand(100, 5)  # 100 samples, 5 features
+y = 2 * X[:, 0] + 3 * X[:, 1] + 4 * X[:, 2] + np.random.randn(100)
+df = pd.DataFrame(X, columns=['Feature1', 'Feature2', 'Feature3', 'Feature4', 'Feature5'])
+df['Target'] = y
+X = df.drop('Target', axis=1)
+y = df['Target']
+# Ridge regression with repeated k-fold cross-validation
+def ridge_regression(X, y, alpha, n_splits=5, n_repeats=10):
+    ridge_model = Ridge(alpha=alpha)
+    rkf = RepeatedKFold(n_splits=n_splits, n_repeats=n_repeats, random_state=42)
+    mae_scores = -cross_val_score(ridge_model, X, y, scoring='neg_mean_absolute_error', cv=rkf)
+    return np.mean(mae_scores)
+alpha_values = [0.01, 0.1, 1.0, 10.0]  # You can adjust these values
+for alpha in alpha_values:
+    average_mae = ridge_regression(X, y, alpha)
+    print(f'Ridge Regression with Alpha={alpha}: Average MAE = {average_mae:.4f}')
